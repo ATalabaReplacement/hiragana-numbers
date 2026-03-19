@@ -40,19 +40,22 @@ function randomNumber() {
   return Math.floor(Math.random() * max) + 1;
 }
 
-function playBell() {
+function playTone(frequency, duration) {
   const ctx = new AudioContext();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.connect(gain);
   gain.connect(ctx.destination);
   osc.type = 'sine';
-  osc.frequency.setValueAtTime(1318.5, ctx.currentTime); // E6
+  osc.frequency.setValueAtTime(frequency, ctx.currentTime);
   gain.gain.setValueAtTime(0.6, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
   osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 1.2);
+  osc.stop(ctx.currentTime + duration);
 }
+
+function playBell() { playTone(1318.5, 1.2); } // E6
+function playDong()  { playTone(220,    1.5); } // A3
 
 function speak() {
   const utterance = new SpeechSynthesisUtterance(numberToHiragana(currentNumber));
@@ -121,6 +124,7 @@ function submitAnswer() {
   } else {
     feedbackText.textContent = `Wrong — the answer was ${currentNumber.toLocaleString()}`;
     feedbackText.className = 'wrong';
+    if (isListening()) playDong();
   }
 }
 
