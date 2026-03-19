@@ -38,8 +38,19 @@ function randomNumber() {
   return Math.floor(Math.random() * max) + 1;
 }
 
+function speak() {
+  const utterance = new SpeechSynthesisUtterance(numberToHiragana(currentNumber));
+  utterance.lang = 'ja-JP';
+  speechSynthesis.speak(utterance);
+}
+
+function isListening() {
+  return document.querySelector('input[name="mode"]:checked').value === 'listening';
+}
+
 // --- DOM ---
 const display      = document.getElementById('number-display');
+const replayBtn    = document.getElementById('replay-btn');
 const speakBtn     = document.getElementById('speak-btn');
 const feedbackText = document.getElementById('feedback-text');
 const input        = document.getElementById('answer-input');
@@ -48,7 +59,19 @@ const actionBtn    = document.getElementById('action-btn');
 let currentNumber;
 let awaitingNext = false;
 
-function showNewNumber() {
+function applyMode() {
+  if (isListening()) {
+    display.classList.add('hidden');
+    replayBtn.classList.remove('hidden');
+    speakBtn.classList.add('hidden');
+  } else {
+    display.classList.remove('hidden');
+    replayBtn.classList.add('hidden');
+    speakBtn.classList.remove('hidden');
+  }
+}
+
+function showNewNumber(autoSpeak = false) {
   currentNumber = randomNumber();
   display.textContent = numberToHiragana(currentNumber);
   feedbackText.textContent = '';
@@ -57,15 +80,16 @@ function showNewNumber() {
   input.readOnly = false;
   actionBtn.textContent = 'Submit';
   awaitingNext = false;
+  applyMode();
+  if (autoSpeak && isListening()) speak();
   input.focus();
 }
 
 function submitAnswer() {
   const raw = input.value.trim();
 
-  // Empty input = skip
   if (raw === '') {
-    showNewNumber();
+    showNewNumber(true);
     return;
   }
 
@@ -83,24 +107,25 @@ function submitAnswer() {
   }
 }
 
-speakBtn.addEventListener('click', () => {
-  const utterance = new SpeechSynthesisUtterance(display.textContent);
-  utterance.lang = 'ja-JP';
-  speechSynthesis.speak(utterance);
-});
+speakBtn.addEventListener('click', speak);
+replayBtn.addEventListener('click', speak);
 
 document.querySelectorAll('input[name="range"]').forEach(radio => {
-  radio.addEventListener('change', showNewNumber);
+  radio.addEventListener('change', () => showNewNumber(true));
+});
+
+document.querySelectorAll('input[name="mode"]').forEach(radio => {
+  radio.addEventListener('change', () => showNewNumber(true));
 });
 
 actionBtn.addEventListener('click', () => {
-  if (awaitingNext) showNewNumber();
+  if (awaitingNext) showNewNumber(true);
   else submitAnswer();
 });
 
 input.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
-    if (awaitingNext) showNewNumber();
+    if (awaitingNext) showNewNumber(true);
     else submitAnswer();
   }
 });

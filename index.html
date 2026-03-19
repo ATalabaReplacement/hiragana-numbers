@@ -9,6 +9,10 @@
 <body>
   <div class="container">
     <h1 class="title">Number Quiz</h1>
+    <div id="mode-selector">
+      <label><input type="radio" name="mode" value="reading" checked> Reading</label>
+      <label><input type="radio" name="mode" value="listening"> Listening</label>
+    </div>
     <div id="range-selector">
       <label><input type="radio" name="range" value="10"> 1–10</label>
       <label><input type="radio" name="range" value="100"> 1–100</label>
@@ -17,6 +21,13 @@
     </div>
     <div class="card">
       <span id="number-display" translate="no">—</span>
+      <button id="replay-btn" class="hidden" aria-label="Replay">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      </button>
     </div>
     <div id="input-group">
       <button id="speak-btn" aria-label="Speak">
@@ -28,9 +39,9 @@
       </button>
       <p id="feedback-text"></p>
       <div id="quiz-area">
-      <input id="answer-input" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="enter a number" autocomplete="off">
-      <button id="action-btn" class="btn">Submit</button>
-    </div>
+        <input id="answer-input" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="enter a number" autocomplete="off">
+        <button id="action-btn" class="btn">Submit</button>
+      </div>
     </div>
   </div>
   <script src="script.js"></script>
