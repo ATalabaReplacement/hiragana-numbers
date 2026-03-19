@@ -28,7 +28,9 @@ function numberToHiragana(n) {
   if (ju === 1)    result += 'じゅう';
   else if (ju > 0) result += ONES[ju] + 'じゅう';
 
-  if (one > 0) result += ONES[one];
+  if (one === 4) result += Math.random() < 0.5 ? 'よん' : 'し';
+  else if (one === 7) result += Math.random() < 0.5 ? 'なな' : 'しち';
+  else if (one > 0) result += ONES[one];
 
   return result;
 }
@@ -36,6 +38,20 @@ function numberToHiragana(n) {
 function randomNumber() {
   const max = parseInt(document.querySelector('input[name="range"]:checked').value, 10);
   return Math.floor(Math.random() * max) + 1;
+}
+
+function playBell() {
+  const ctx = new AudioContext();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1318.5, ctx.currentTime); // E6
+  gain.gain.setValueAtTime(0.6, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 1.2);
 }
 
 function speak() {
@@ -101,6 +117,7 @@ function submitAnswer() {
   if (guess === currentNumber) {
     feedbackText.textContent = 'Correct!';
     feedbackText.className = 'correct';
+    if (isListening()) playBell();
   } else {
     feedbackText.textContent = `Wrong — the answer was ${currentNumber.toLocaleString()}`;
     feedbackText.className = 'wrong';
