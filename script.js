@@ -42,19 +42,20 @@ function randomNumber() {
 
 const audioCtx = new AudioContext();
 
+document.addEventListener('touchstart', () => audioCtx.resume(), { once: true });
+document.addEventListener('click',      () => audioCtx.resume(), { once: true });
+
 function playTone(frequency, duration) {
-  audioCtx.resume().then(() => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.start(audioCtx.currentTime);
-    osc.stop(audioCtx.currentTime + duration);
-  });
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + duration);
 }
 
 function playBell() { playTone(1318.5, 1.2); } // E6
