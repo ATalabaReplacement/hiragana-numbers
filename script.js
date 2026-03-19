@@ -42,8 +42,38 @@ function randomNumber() {
 
 const audioCtx = new AudioContext();
 
-document.addEventListener('touchstart', () => audioCtx.resume(), { once: true });
-document.addEventListener('click',      () => audioCtx.resume(), { once: true });
+// On iOS, Web Audio is muted by the silent switch unless an <audio> element
+// plays first, which elevates the session to "playback" mode. We build a
+// minimal silent WAV in memory so there's no external file needed.
+function makeSilentAudio() {
+  const buf = new ArrayBuffer(45);
+  const v = new DataView(buf);
+  const str = (offset, s) => [...s].forEach((c, i) => v.setUint8(offset + i, c.charCodeAt(0)));
+  str(0,  'RIFF'); v.setUint32(4,  37,   true);
+  str(8,  'WAVE');
+  str(12, 'fmt '); v.setUint32(16, 16,   true);
+  v.setUint16(20, 1,    true);  // PCM
+  v.setUint16(22, 1,    true);  // mono
+  v.setUint32(24, 8000, true);  // sample rate
+  v.setUint32(28, 8000, true);  // byte rate
+  v.setUint16(32, 1,    true);  // block align
+  v.setUint16(34, 8,    true);  // 8-bit
+  str(36, 'data'); v.setUint32(40, 1, true);
+  v.setUint8(44, 0x80);         // silence
+  const audio = new Audio();
+  audio.src = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  return audio;
+}
+
+const silentAudio = makeSilentAudio();
+
+function unlockAudio() {
+  audioCtx.resume();
+  silentAudio.play().catch(() => {});
+}
+
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click',      unlockAudio, { once: true });
 
 function playTone(frequency, duration) {
   const osc = audioCtx.createOscillator();
