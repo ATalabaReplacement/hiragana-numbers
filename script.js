@@ -40,6 +40,7 @@ function randomNumber() {
 
 // --- DOM ---
 const display      = document.getElementById('number-display');
+const speakBtn     = document.getElementById('speak-btn');
 const feedbackText = document.getElementById('feedback-text');
 const input        = document.getElementById('answer-input');
 const actionBtn    = document.getElementById('action-btn');
@@ -81,6 +82,12 @@ function submitAnswer() {
     feedbackText.className = 'wrong';
   }
 }
+
+speakBtn.addEventListener('click', () => {
+  const utterance = new SpeechSynthesisUtterance(display.textContent);
+  utterance.lang = 'ja-JP';
+  speechSynthesis.speak(utterance);
+});
 
 document.querySelectorAll('input[name="range"]').forEach(radio => {
   radio.addEventListener('change', showNewNumber);
